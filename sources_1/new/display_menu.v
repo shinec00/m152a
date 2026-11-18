@@ -24,7 +24,7 @@ module display_menu(
 input wire clk,
 input wire[9:0] nextX,
 input wire[9:0] nextY,
-output wire[9:0] color
+output wire[8:0] color
     );
 wire[8:0] img_x = nextX[9:1];
 wire[7:0] img_y = nextY[9:1];
