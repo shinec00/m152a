@@ -21,18 +21,71 @@
 
 
 module main(
-        input  wire        clk,                          //                   sys_clk.clk
-        input  wire        btnC,
-        output wire [1:0]  sw,   
-        output wire        vga_Hsync,                               //                          .HS
-        output wire        vga_Vsync,                               //                          .VS                             //                          .SYNC
-        output wire [3:0]  vga_R,                                //                          .R
-        output wire [3:0]  vga_G,                                //                          .G
-        output wire [3:0]  vga_B,                                //                          .B
-        input  wire        vga_pll_ref_clk_clk,                  //           vga_pll_ref_clk.clk
-        input  wire        vga_pll_ref_reset_reset               //         vga_pll_ref_reset.reset
-            );
-    // == Game Logic ==
+    input  wire        clk,                          //                   sys_clk.clk
+    input  wire        btn_C_raw,
+    input  wire        btn_R_raw,
+    input  wire        btn_L_raw,
+    input  wire        btn_U_raw,
+    input  wire        btn_D_raw,
+    output wire [1:0]  sw,   
+    output wire        vga_Hsync,                               //                          .HS
+    output wire        vga_Vsync,                               //                          .VS                             //                          .SYNC
+    output wire [3:0]  vga_R,                                //                          .R
+    output wire [3:0]  vga_G,                                //                          .G
+    output wire [3:0]  vga_B,                                //                          .B
+    input  wire        vga_pll_ref_clk_clk,                  //           vga_pll_ref_clk.clk
+    input  wire        vga_pll_ref_reset_reset               //         vga_pll_ref_reset.reset
+    );
+    // Simulation Parameters
+    localparam CLK_FREQ_HZ = 100_000;
+    localparam LOCKOUT_MS  = 2;
+    // Real Parameters
+    localparam CLK_FREQ_HZ = 50_000_000;
+    localparam LOCKOUT_MS  = 5;
+
+    // == Debouncers ==
+    debouncer #(
+        .CLK_FREQ_HZ(CLK_FREQ_HZ),
+        .LOCKOUT_MS (LOCKOUT_MS)
+    ) u_debouncer_down (
+        .btn_raw      (btn_C_raw),
+        .clock        (clk),
+        .btn_debounced(btn_C)
+    );
+    debouncer #(
+        .CLK_FREQ_HZ(CLK_FREQ_HZ),
+        .LOCKOUT_MS (LOCKOUT_MS)
+    ) u_debouncer_down (
+        .btn_raw      (btn_L_raw),
+        .clock        (clk),
+        .btn_debounced(btn_L)
+    );
+    debouncer #(
+        .CLK_FREQ_HZ(CLK_FREQ_HZ),
+        .LOCKOUT_MS (LOCKOUT_MS)
+    ) u_debouncer_down (
+        .btn_raw      (btn_R_raw),
+        .clock        (clk),
+        .btn_debounced(btn_R)
+    );
+    debouncer #(
+        .CLK_FREQ_HZ(CLK_FREQ_HZ),
+        .LOCKOUT_MS (LOCKOUT_MS)
+    ) u_debouncer_down (
+        .btn_raw      (btn_U_raw),
+        .clock        (clk),
+        .btn_debounced(btn_U)
+    );
+    debouncer #(
+        .CLK_FREQ_HZ(CLK_FREQ_HZ),
+        .LOCKOUT_MS (LOCKOUT_MS)
+    ) u_debouncer_down (
+        .btn_raw      (btn_D_raw),
+        .clock        (clk),
+        .btn_debounced(btn_D)
+    );
+
+    // == Logic Blocks == 
     localparam [1:0] MENU = 2'd0,
                      GAME = 2'd1,
                      PAUSE = 2'd2;
@@ -42,7 +95,27 @@ module main(
     
     logic_menu(
         .sw(sw),
-        .next_state(next_state)
+        .btn_L(btn_L),
+        .btn_R(btn_R),
+        .btn_U(btn_U),
+        .btn_D(btn_D),
+        .next_state(next_state_menu)
+        );
+    logic_game(
+        .sw(sw),
+        .btn_L(btn_L),
+        .btn_R(btn_R),
+        .btn_U(btn_U),
+        .btn_D(btn_D),
+        .next_state(next_state_game)
+        );
+    logic_pause(
+        .sw(sw),
+        .btn_L(btn_L),
+        .btn_R(btn_R),
+        .btn_U(btn_U),
+        .btn_D(btn_D),
+        .next_state(next_state_pause)
         );
     always @(posedge clk) begin
         case (state)
@@ -98,8 +171,7 @@ module main(
 //         .color(color_pause)
 //         );
 
-    
-    
+   
     // Instantiate VGA driver                   
     vga_driver draw   ( .clock(clk_25),        // 25 MHz PLL
                         .reset(vga_reset),      // Active high reset, manipulated by instantiating module
