@@ -1,7 +1,7 @@
 // Copyright 1986-2018 Xilinx, Inc. All Rights Reserved.
 // --------------------------------------------------------------------------------
 // Tool Version: Vivado v.2018.2 (win64) Build 2258646 Thu Jun 14 20:03:12 MDT 2018
-// Date        : Mon Nov 16 11:41:47 2026
+// Date        : Wed Nov 18 10:57:07 2026
 // Host        : CS152A-02 running 64-bit major release  (build 9200)
 // Command     : write_verilog -force -mode synth_stub
 //               c:/Users/Student/Documents/lab4_monday/lab4_monday.srcs/sources_1/ip/blk_mem_gen_0/blk_mem_gen_0_stub.v
@@ -15,8 +15,8 @@
 // Please paste the declaration into a Verilog source file or add the file as an additional source.
 (* x_core_info = "blk_mem_gen_v8_4_1,Vivado 2018.2" *)
 module blk_mem_gen_0(clka, addra, douta)
-/* synthesis syn_black_box black_box_pad_pin="clka,addra[16:0],douta[11:0]" */;
+/* synthesis syn_black_box black_box_pad_pin="clka,addra[16:0],douta[8:0]" */;
   input clka;
   input [16:0]addra;
-  output [11:0]douta;
+  output [8:0]douta;
 endmodule

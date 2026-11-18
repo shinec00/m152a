@@ -74,36 +74,36 @@ module main(
     wire[7:0] G_8bit;
     wire[7:0] B_8bit;
     
-    wire[7:0] color_menu;
-    wire[7:0] color_game;
-    wire[7:0] color_pause;
-    assign color = state == 0 ? color_menu : (state == 1 ? color_game : color_pause);
+    wire[8:0] color_menu;
+    wire[8:0] color_game;
+    wire[8:0] color_pause;
+    //assign color = state == 0 ? color_menu : (state == 1 ? color_game : color_pause);
     
     display_menu menu (
-        .x(next_x),
-        .y(next_y),
-        .color(color_menu)        
+        .clk(clk_25),
+        .nextX(next_x),
+        .nextY(next_y),
+        .color(color_menu)      
         );
         
-    display_game game (
-        .x(next_x),
-        .y(next_y),
-        .color(color_game)
-        // game state
-        );
+//    display_game game (
+//        .x(next_x),
+//        .y(next_y),
+//        .color(color_game)
+//        );
 
-    display_pause pause (
-         .x(next_x),
-         .y(next_y),
-         .color(color_pause)
-         );
+//    display_pause pause (
+//         .x(next_x),
+//         .y(next_y),
+//         .color(color_pause)
+//         );
 
     
     
     // Instantiate VGA driver                   
     vga_driver draw   ( .clock(clk_25),        // 25 MHz PLL
                         .reset(vga_reset),      // Active high reset, manipulated by instantiating module
-                        .color_in(color), // Pixel color (RRRGGGBB) for pixel being drawn
+                        .color_in(color_menu), // Pixel color (RRRGGGBB) for pixel being drawn
                         .next_x(next_x),        // X-coordinate (range [0, 639]) of next pixel to be drawn
                         .next_y(next_y),        // Y-coordinate (range [0, 479]) of next pixel to be drawn
                         .hsync(vga_Hsync),         // All of the connections to the VGA screen below

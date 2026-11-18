@@ -1,7 +1,7 @@
 -- Copyright 1986-2018 Xilinx, Inc. All Rights Reserved.
 -- --------------------------------------------------------------------------------
 -- Tool Version: Vivado v.2018.2 (win64) Build 2258646 Thu Jun 14 20:03:12 MDT 2018
--- Date        : Mon Nov 16 11:41:47 2026
+-- Date        : Wed Nov 18 10:57:07 2026
 -- Host        : CS152A-02 running 64-bit major release  (build 9200)
 -- Command     : write_vhdl -force -mode synth_stub
 --               c:/Users/Student/Documents/lab4_monday/lab4_monday.srcs/sources_1/ip/blk_mem_gen_0/blk_mem_gen_0_stub.vhdl
@@ -16,7 +16,7 @@ entity blk_mem_gen_0 is
   Port ( 
     clka : in STD_LOGIC;
     addra : in STD_LOGIC_VECTOR ( 16 downto 0 );
-    douta : out STD_LOGIC_VECTOR ( 11 downto 0 )
+    douta : out STD_LOGIC_VECTOR ( 8 downto 0 )
   );
 
 end blk_mem_gen_0;
@@ -25,7 +25,7 @@ architecture stub of blk_mem_gen_0 is
 attribute syn_black_box : boolean;
 attribute black_box_pad_pin : string;
 attribute syn_black_box of stub : architecture is true;
-attribute black_box_pad_pin of stub : architecture is "clka,addra[16:0],douta[11:0]";
+attribute black_box_pad_pin of stub : architecture is "clka,addra[16:0],douta[8:0]";
 attribute x_core_info : string;
 attribute x_core_info of stub : architecture is "blk_mem_gen_v8_4_1,Vivado 2018.2";
 begin
