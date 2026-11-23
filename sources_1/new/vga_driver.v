@@ -15,31 +15,31 @@ module vga_driver (
 );
 
     // Horizontal parameters (measured in clock cycles)
-    parameter [9:0] H_ACTIVE  =  10'd639 ;
-    parameter [9:0] H_FRONT   =  10'd15 ;
-    parameter [9:0] H_PULSE   =  10'd95 ;
-    parameter [9:0] H_BACK    =  10'd47 ;
+    parameter [9:0] H_ACTIVE  =  10'd_639 ;
+    parameter [9:0] H_FRONT   =  10'd_15 ;
+    parameter [9:0] H_PULSE   =  10'd_95 ;
+    parameter [9:0] H_BACK    =  10'd_47 ;
 
     // Vertical parameters (measured in lines)
-    parameter [9:0] V_ACTIVE   =  10'd479 ;
-    parameter [9:0] V_FRONT    =  10'd9 ;
-    parameter [9:0] V_PULSE =  10'd1 ;
-    parameter [9:0] V_BACK  =  10'd32 ;
+    parameter [9:0] V_ACTIVE   =  10'd_479 ;
+    parameter [9:0] V_FRONT    =  10'd_9 ;
+    parameter [9:0] V_PULSE =  10'd_1 ;
+    parameter [9:0] V_BACK  =  10'd_32 ;
 
     // Parameters for readability
-    parameter   LOW     = 1'b0 ;
-    parameter   HIGH    = 1'b1 ;
+    parameter   LOW     = 1'b_0 ;
+    parameter   HIGH    = 1'b_1 ;
 
     // States (more readable)
-    parameter   [7:0]    H_ACTIVE_STATE    = 8'd0 ;
-    parameter   [7:0]   H_FRONT_STATE     = 8'd1 ;
-    parameter   [7:0]   H_PULSE_STATE   = 8'd2 ;
-    parameter   [7:0]   H_BACK_STATE     = 8'd3 ;
+    parameter   [7:0]    H_ACTIVE_STATE    = 8'd_0 ;
+    parameter   [7:0]   H_FRONT_STATE     = 8'd_1 ;
+    parameter   [7:0]   H_PULSE_STATE   = 8'd_2 ;
+    parameter   [7:0]   H_BACK_STATE     = 8'd_3 ;
 
-    parameter   [7:0]    V_ACTIVE_STATE    = 8'd0 ;
-    parameter   [7:0]   V_FRONT_STATE    = 8'd1 ;
-    parameter   [7:0]   V_PULSE_STATE   = 8'd2 ;
-    parameter   [7:0]   V_BACK_STATE     = 8'd3 ;
+    parameter   [7:0]    V_ACTIVE_STATE    = 8'd_0 ;
+    parameter   [7:0]   V_FRONT_STATE    = 8'd_1 ;
+    parameter   [7:0]   V_PULSE_STATE   = 8'd_2 ;
+    parameter   [7:0]   V_BACK_STATE     = 8'd_3 ;
 
     // Clocked registers
     reg              hysnc_reg ;
@@ -60,8 +60,8 @@ module vga_driver (
         // At reset . . .
         if (reset) begin
             // Zero the counters
-            h_counter   <= 10'd0 ;
-            v_counter   <= 10'd0 ;
+            h_counter   <= 10'd_0 ;
+            v_counter   <= 10'd_0 ;
             // States to ACTIVE
             h_state     <= H_ACTIVE_STATE  ;
             v_state     <= V_ACTIVE_STATE  ;
@@ -74,7 +74,7 @@ module vga_driver (
             //////////////////////////////////////////////////////////////////////////
             if (h_state == H_ACTIVE_STATE) begin
                 // Iterate horizontal counter, zero at end of ACTIVE mode
-                h_counter <= (h_counter==H_ACTIVE)?10'd0:(h_counter + 10'd1) ;
+                h_counter <= (h_counter==H_ACTIVE)?10'd_0:(h_counter + 10'd_1) ;
                 // Set hsync
                 hysnc_reg <= HIGH ;
                 // Deassert line done
@@ -84,7 +84,7 @@ module vga_driver (
             end
             if (h_state == H_FRONT_STATE) begin
                 // Iterate horizontal counter, zero at end of H_FRONT mode
-                h_counter <= (h_counter==H_FRONT)?10'd0:(h_counter + 10'd1) ;
+                h_counter <= (h_counter==H_FRONT)?10'd_0:(h_counter + 10'd_1) ;
                 // Set hsync
                 hysnc_reg <= HIGH ;
                 // State transition
@@ -92,7 +92,7 @@ module vga_driver (
             end
             if (h_state == H_PULSE_STATE) begin
                 // Iterate horizontal counter, zero at end of H_PULSE mode
-                h_counter <= (h_counter==H_PULSE)?10'd0:(h_counter + 10'd1) ;
+                h_counter <= (h_counter==H_PULSE)?10'd_0:(h_counter + 10'd_1) ;
                 // Clear hsync
                 hysnc_reg <= LOW ;
                 // State transition
@@ -100,7 +100,7 @@ module vga_driver (
             end
             if (h_state == H_BACK_STATE) begin
                 // Iterate horizontal counter, zero at end of H_BACK mode
-                h_counter <= (h_counter==H_BACK)?10'd0:(h_counter + 10'd1) ;
+                h_counter <= (h_counter==H_BACK)?10'd_0:(h_counter + 10'd_1) ;
                 // Set hsync
                 hysnc_reg <= HIGH ;
                 // State transition
@@ -113,7 +113,7 @@ module vga_driver (
             //////////////////////////////////////////////////////////////////////////
             if (v_state == V_ACTIVE_STATE) begin
                 // increment vertical counter at end of line, zero on state transition
-                v_counter<=(line_done==HIGH)?((v_counter==V_ACTIVE)?10'd0:(v_counter+10'd1)):v_counter ;
+                v_counter<=(line_done==HIGH)?((v_counter==V_ACTIVE)?10'd_0:(v_counter+10'd_1)):v_counter ;
                 // set vsync in active mode
                 vsync_reg <= HIGH ;
                 // state transition - only on end of lines
@@ -121,7 +121,7 @@ module vga_driver (
             end
             if (v_state == V_FRONT_STATE) begin
                 // increment vertical counter at end of line, zero on state transition
-                v_counter<=(line_done==HIGH)?((v_counter==V_FRONT)?10'd0:(v_counter + 10'd1)):v_counter ;
+                v_counter<=(line_done==HIGH)?((v_counter==V_FRONT)?10'd_0:(v_counter + 10'd_1)):v_counter ;
                 // set vsync in front porch
                 vsync_reg <= HIGH ;
                 // state transition
@@ -129,7 +129,7 @@ module vga_driver (
             end
             if (v_state == V_PULSE_STATE) begin
                 // increment vertical counter at end of line, zero on state transition
-                v_counter<=(line_done==HIGH)?((v_counter==V_PULSE)?10'd0:(v_counter + 10'd1)):v_counter ;
+                v_counter<=(line_done==HIGH)?((v_counter==V_PULSE)?10'd_0:(v_counter + 10'd_1)):v_counter ;
                 // clear vsync in pulse
                 vsync_reg <= LOW ;
                 // state transition
@@ -137,7 +137,7 @@ module vga_driver (
             end
             if (v_state == V_BACK_STATE) begin
                 // increment vertical counter at end of line, zero on state transition
-                v_counter<=(line_done==HIGH)?((v_counter==V_BACK)?10'd0:(v_counter + 10'd1)):v_counter ;
+                v_counter<=(line_done==HIGH)?((v_counter==V_BACK)?10'd_0:(v_counter + 10'd_1)):v_counter ;
                 // set vsync in back porch
                 vsync_reg <= HIGH ;
                 // state transition
@@ -156,7 +156,7 @@ module vga_driver (
     assign hsync = hysnc_reg ;
     assign vsync = vsync_reg ;
     // The x/y coordinates that should be available on the NEXT cycle
-    assign next_x = (h_state==H_ACTIVE_STATE)?h_counter:10'd0 ;
-    assign next_y = (v_state==V_ACTIVE_STATE)?v_counter:10'd0 ;
+    assign next_x = (h_state==H_ACTIVE_STATE)?h_counter:10'd_0 ;
+    assign next_y = (v_state==V_ACTIVE_STATE)?v_counter:10'd_0 ;
 
 endmodule

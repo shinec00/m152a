@@ -1,25 +1,7 @@
 `timescale 1ns / 1ps
-//////////////////////////////////////////////////////////////////////////////////
-// Company: 
-// Engineer: 
-// 
-// Create Date: 11/16/2026 11:25:29 AM
-// Design Name: 
-// Module Name: display_menu
-// Project Name: 
-// Target Devices: 
-// Tool Versions: 
-// Description: 
-// 
-// Dependencies: 
-// 
-// Revision:
-// Revision 0.01 - File Created
-// Additional Comments:
-// 
-//////////////////////////////////////////////////////////////////////////////////
-
-
+// Menu screen: 320x240 image in block RAM, pixel-doubled to 640x480.
+// ASSUMES the ROM data is 9-bit RRRGGGBBB (as declared below); it is expanded
+// to the 12-bit color path by repeating each channel's MSB as its new LSB.
 module display_menu(
     input  wire [9:0] x,
     input  wire [9:0] y,
