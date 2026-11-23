@@ -20,42 +20,50 @@
 //////////////////////////////////////////////////////////////////////////////////
 
 
-module tb(
-
-    );
+module tb;
 
     reg clk = 0;
-    reg[4:0] btn_raw = 0;
-    reg[1:0] sw = 0;
+    reg [1:0] sw = 2'b00;
+    localparam [1:0] MENU = 2'd0, GAME = 2'd1, PAUSE = 2'd2;
 
-    main _main (
-        clk(clk),
-        btn_C_raw(btn_raw[0]),
-        btn_R_raw(btn_raw[1]),
-        btn_L_raw(btn_raw[2]),
-        btn_U_raw(btn_raw[3]),
-        btn_D_raw(btn_raw[4]),
-        sw, 
-        vga_pll_ref_clk_clk (0),
-        vga_pll_ref_reset_reset (0)
-      );
+    main dut (
+        .clk(clk),
+        .btn_C_raw(1'b0),
+        .btn_R_raw(1'b0),
+        .btn_L_raw(1'b0),
+        .btn_U_raw(1'b0),
+        .btn_D_raw(1'b0),
+        .sw(sw)
+    );
 
-    always begin
-        #5 clk  = ~clk
-    end
+    always #5 clk = ~clk;
+
+    task check_state;
+        input [1:0] switches;
+        input [1:0] expected_state;
+        begin
+            @(negedge clk);
+            sw = switches;
+            repeat (6) @(negedge clk);
+            if (dut.state !== expected_state)
+                $fatal(1, "SW=%b: expected state %d, got %d",
+                       switches, expected_state, dut.state);
+        end
+    endtask
 
     initial begin
-      #100
-      sw[1] = 1
-      #100
-      sw[1] = 0
-      #100
-      sw[0] = 1
-      #100
-      sw[1] = 1
-      #100
-      sw[1] = 0
-    
-      $finish
+        check_state(2'b00, MENU);
+        check_state(2'b10, MENU);   // SW1 alone leaves the start screen active.
+        check_state(2'b00, MENU);
+        check_state(2'b10, MENU);
+        check_state(2'b11, GAME);   // Starting with SW1 already up does not pause.
+        check_state(2'b01, GAME);
+        check_state(2'b11, PAUSE);  // Raising SW1 during the game pauses.
+        check_state(2'b10, PAUSE);  // SW0 is ignored during pause.
+        check_state(2'b00, GAME);   // Lowering SW1 resumes even with SW0 low.
+        check_state(2'b10, PAUSE);
+        check_state(2'b00, GAME);
+        $display("PASS: start, pause and resume transitions");
+        $finish;
     end
 endmodule

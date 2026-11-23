@@ -7,6 +7,6 @@ module logic_pause(
                      GAME = 2'd1,
                      PAUSE = 2'd2;
 
-    // Switch to GAME state if SW is toggled 
+    // Stay paused until SW1 is lowered.
     assign next_state = sw[1] ? PAUSE : GAME;
 endmodule

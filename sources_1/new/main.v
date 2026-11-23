@@ -92,17 +92,22 @@ module main #(
 
     (* ASYNC_REG = "TRUE" *) reg [1:0] sw_meta = 2'b00;
     (* ASYNC_REG = "TRUE" *) reg [1:0] sw_sync = 2'b00;
+    reg sw1_previous = 1'b0;
     always @(posedge clk) begin
         sw_meta <= sw;
         sw_sync <= sw_meta;
+        sw1_previous <= sw_sync[1];
     end
+
+    // A switch raised on the start screen must be lowered before it can pause a game.
+    wire pause_requested = sw_sync[1] && !sw1_previous;
 
     logic_menu menu_logic(
         .sw(sw_sync),
         .next_state(state_next_menu)
     );
     logic_game game_logic(
-        .sw(sw_sync),
+        .pause_requested(pause_requested),
         .next_state(state_next_game)
     );
     logic_pause pause_logic(
@@ -139,20 +144,18 @@ module main #(
     wire vga_reset = vga_startup_reset | btn_C;
     wire[9:0] next_x;
     wire[9:0] next_y;
-    wire[7:0] R_8bit;
-    wire[7:0] G_8bit;
-    wire[7:0] B_8bit;
+    wire[2:0] red;
+    wire[2:0] green;
+    wire[2:0] blue;
     
     wire[8:0] color_menu;
-    wire[7:0] color_pause;
-    // GAME uses the menu image until a game renderer is available.
-    // Drop the ROM's low blue bit to match the driver's RRRGGGBB input.
-    wire[7:0] color = (state == PAUSE) ? color_pause : color_menu[8:1];
+    wire[8:0] color_pause;
+    // GAME uses the start screen until a game renderer is available.
+    wire[8:0] color = (state == PAUSE) ? color_pause : color_menu;
 
     display_menu menu (
-        .clk(clk_25),
-        .nextX(next_x),
-        .nextY(next_y),
+        .x(next_x),
+        .y(next_y),
         .color(color_menu)
     );
 
@@ -165,19 +168,20 @@ module main #(
     // Instantiate VGA driver                   
     vga_driver draw   ( .clock(clk_25),        // 25 MHz pixel clock
                         .reset(vga_reset),      // Active high reset, manipulated by instantiating module
-                        .color_in(color),      // Pixel color (RRRGGGBB) for pixel being drawn
+                        .color_in(color),      // Packed pixel color (RRRGGGBBB)
                         .next_x(next_x),        // X-coordinate (range [0, 639]) of next pixel to be drawn
                         .next_y(next_y),        // Y-coordinate (range [0, 479]) of next pixel to be drawn
                         .hsync(vga_Hsync),         // All of the connections to the VGA screen below
                         .vsync(vga_Vsync),
-                        .red(R_8bit),
-                        .green(G_8bit),
-                        .blue(B_8bit)
+                        .red(red),
+                        .green(green),
+                        .blue(blue)
     );
     
-    assign vga_R = R_8bit[7:4];
-    assign vga_G = G_8bit[7:4];
-    assign vga_B = B_8bit[7:4];
+    // Each Basys 3 VGA channel has four pins. Use the upper three for RGB.
+    assign vga_R = {red, 1'b0};
+    assign vga_G = {green, 1'b0};
+    assign vga_B = {blue, 1'b0};
 
     
 endmodule

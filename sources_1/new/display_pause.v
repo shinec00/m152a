@@ -3,7 +3,7 @@
 module display_pause(
     input  wire [9:0] x,
     input  wire [9:0] y,
-    output reg  [7:0] color  // RRRGGGBB
+    output wire [8:0] color  // RRRGGGBBB
 );
     localparam TITLE_LENGTH = 6;
     localparam HELP_LENGTH = 22;
@@ -27,30 +27,14 @@ module display_pause(
     reg [7:0] character;
     reg [2:0] column;
     reg [2:0] row;
-    reg [34:0] bitmap;
+    wire lit;
 
-    // Rows run from top to bottom, with the leftmost pixel in the MSB.
-    function [34:0] glyph;
-        input [7:0] letter;
-        begin
-            case (letter)
-                "1": glyph = 35'b00100_01100_00100_00100_00100_00100_01110;
-                "A": glyph = 35'b01110_10001_10001_11111_10001_10001_10001;
-                "D": glyph = 35'b11110_10001_10001_10001_10001_10001_11110;
-                "E": glyph = 35'b11111_10000_10000_11110_10000_10000_11111;
-                "M": glyph = 35'b10001_11011_10101_10101_10001_10001_10001;
-                "N": glyph = 35'b10001_11001_10101_10011_10001_10001_10001;
-                "O": glyph = 35'b01110_10001_10001_10001_10001_10001_01110;
-                "P": glyph = 35'b11110_10001_10001_11110_10000_10000_10000;
-                "R": glyph = 35'b11110_10001_10001_11110_10100_10010_10001;
-                "S": glyph = 35'b01111_10000_10000_01110_00001_00001_11110;
-                "T": glyph = 35'b11111_00100_00100_00100_00100_00100_00100;
-                "U": glyph = 35'b10001_10001_10001_10001_10001_10001_01110;
-                "W": glyph = 35'b10001_10001_10001_10101_10101_11011_10001;
-                default: glyph = 35'd0;
-            endcase
-        end
-    endfunction
+    font_5x7 font (
+        .character(character),
+        .row(row),
+        .column(column),
+        .lit(lit)
+    );
 
     always @* begin
         character = " ";
@@ -66,12 +50,7 @@ module display_pause(
             column = help_dx[3:1];
             row = help_dy[3:1];
         end
-
-        bitmap = glyph(character);
-        color = 8'h00;
-        if (column >= 3'd1 && column <= 3'd5) begin
-            if (bitmap[35 - row*5 - column])
-                color = 8'hFF;
-        end
     end
+
+    assign color = lit ? 9'h1FF : 9'h000;
 endmodule

@@ -1,14 +1,12 @@
 module logic_game(
-    input wire[1:0] sw,
+    input wire pause_requested,
     output wire[1:0] next_state
     );
 
-    localparam [1:0] MENU = 2'd0,
-                     GAME = 2'd1,
+    localparam [1:0] GAME = 2'd1,
                      PAUSE = 2'd2;
 
-    // Switch to GAME state if SW is toggled 
-    assign next_state = sw[1] ? PAUSE : GAME;
+    assign next_state = pause_requested ? PAUSE : GAME;
 
     
 endmodule

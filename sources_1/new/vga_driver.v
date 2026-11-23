@@ -1,14 +1,14 @@
 module vga_driver (
     input wire clock,     // 25 MHz
     input wire reset,     // Active high
-    input [7:0] color_in, // Pixel color data (RRRGGGBB)
+    input wire [8:0] color_in, // Pixel color data (RRRGGGBBB)
     output [9:0] next_x,  // x-coordinate of NEXT pixel that will be drawn
     output [9:0] next_y,  // y-coordinate of NEXT pixel that will be drawn
     output wire hsync,    // HSYNC (to VGA connector)
     output wire vsync,    // VSYNC (to VGA connctor)
-    output [7:0] red,     // RED (to resistor DAC VGA connector)
-    output [7:0] green,   // GREEN (to resistor DAC to VGA connector)
-    output [7:0] blue,    // BLUE (to resistor DAC to VGA connector)
+    output reg [2:0] red,
+    output reg [2:0] green,
+    output reg [2:0] blue,
     output sync,          // SYNC to VGA connector
     output clk,           // CLK to VGA connector
     output blank          // BLANK to VGA connector
@@ -44,9 +44,6 @@ module vga_driver (
     // Clocked registers
     reg              hysnc_reg ;
     reg              vsync_reg ;
-    reg     [7:0]   red_reg ;
-    reg     [7:0]   green_reg ;
-    reg     [7:0]   blue_reg ;
     reg              line_done ;
 
     // Control registers
@@ -55,6 +52,8 @@ module vga_driver (
 
     reg     [7:0]    h_state ;
     reg     [7:0]    v_state ;
+
+    wire active_video = (h_state == H_ACTIVE_STATE) && (v_state == V_ACTIVE_STATE);
 
     // State machine
     always@(posedge clock) begin
@@ -149,18 +148,13 @@ module vga_driver (
             //////////////////////////////// COLOR OUT ///////////////////////////////
             //////////////////////////////////////////////////////////////////////////
             // Assign colors if in active mode
-            red_reg<=(h_state==H_ACTIVE_STATE)?((v_state==V_ACTIVE_STATE)?{color_in[7:5],5'd0}:8'd0):8'd0 ;
-            green_reg<=(h_state==H_ACTIVE_STATE)?((v_state==V_ACTIVE_STATE)?{color_in[4:2],5'd0}:8'd0):8'd0 ;
-            blue_reg<=(h_state==H_ACTIVE_STATE)?((v_state==V_ACTIVE_STATE)?{color_in[1:0],6'd0}:8'd0):8'd0 ;
+            {red, green, blue} <= active_video ? color_in : 9'd0;
 
         end
     end
     // Assign output values - to VGA connector
     assign hsync = hysnc_reg ;
     assign vsync = vsync_reg ;
-    assign red = red_reg ;
-    assign green = green_reg ;
-    assign blue = blue_reg ;
     // The x/y coordinates that should be available on the NEXT cycle
     assign next_x = (h_state==H_ACTIVE_STATE)?h_counter:10'd0 ;
     assign next_y = (v_state==V_ACTIVE_STATE)?v_counter:10'd0 ;

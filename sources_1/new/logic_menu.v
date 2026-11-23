@@ -26,9 +26,8 @@ module logic_menu(
     );
 
     localparam [1:0] MENU = 2'd0,
-                     GAME = 2'd1,
-                     PAUSE = 2'd2;
+                     GAME = 2'd1;
 
-    // Switch to GAME state if SW is toggled 
+    // SW0 starts the game. SW1 has no effect on the start screen.
     assign next_state = sw[0] ? GAME : MENU;
 endmodule
